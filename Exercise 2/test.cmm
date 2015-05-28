@@ -1,0 +1,25 @@
+class Foo  { /* Foo Class */
+	int fact(int n) {
+		return 0;
+	}
+	int fib(int x) { 
+		return 1;
+	}
+};
+
+class Main extends Foo { 
+	/* Main Class */
+	Main() {   
+		int i;
+		int x;
+		 
+		for(i=0;i< 1; i++) { 
+			x = fact(5);
+		} 
+	} 
+	int fact(int n)  {
+		if (n==0) 
+			return 1;
+		else return n * fact(n-1);
+	}
+};

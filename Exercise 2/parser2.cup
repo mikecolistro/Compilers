@@ -1,0 +1,149 @@
+// JavaCUP example
+ 
+ 
+parser code {:
+boolean parsing_failed = false;
+String source_filename;
+ 
+public SrcLoc sLoc(java_cup.runtime.Symbol token) {return new SrcLoc(token.left, token.right, source_filename);}
+ 
+public parser(Lexer mylexer, String fname)
+{
+super(mylexer);
+    source_filename = fname;
+}
+ 
+public void syntax_error(java_cup.runtime.Symbol cur_token) {
+       parsing_failed = true;
+       System.err.println("Syntax error " + sLoc(cur_token).toString() + " Got: " + cur_token.toString());
+}
+ 
+public boolean hasFailed() { return parsing_failed;}
+:}
+ 
+/* Terminals (tokens returned by the scanner). */
+terminal           SEMI, PLUS, MINUS, TIMES, DIVIDE, MOD,DOT,DOTDOT,COMMA;
+terminal           SMALLER,GREATER,SMEQ,GTEQ,EQL,NEQ,ASSIGN,AND,OR,NOT;
+terminal           UMINUS, LPAREN, RPAREN, LBRACKET,RBRACKET,PBRACKET,LBRACE,RBRACE;
+terminal           TINT, TBOOL,TVOID,WHILE,FOR,IF,SELF,ELSE,CLASS,EXTENDS,NEW,RETURN;
+terminal Integer   NUMBER;
+terminal String    ID;
+ 
+/* Non terminals */
+non terminal classList, classDecl;
+non terminal decl, decls;
+non terminal formal, formals;
+non terminal statement, statements;
+non terminal assignment;
+non terminal expr;
+non terminal op, uop;
+non terminal lvalue;
+non terminal actuals;
+non terminal type;
+ 
+ 
+/* Precedences */
+ 
+precedence left NOT, AND, OR;
+precedence left SMALLER, GREATER, SMEQ, GTEQ, EQL, NEQ;
+precedence left PLUS, MINUS;
+precedence left TIMES, DIVIDE, MOD;
+precedence left UMINUS;
+precedence nonassoc LPAREN, RPAREN, LBRACKET, RBRACKET, LBRACE, RBRACE;
+ 
+ 
+/* The grammar */
+ 
+classList ::= classList classDecl
+            |/*epsilon*/
+            ;
+ 
+classDecl ::= CLASS ID EXTENDS ID LBRACE decls RBRACE SEMI
+            | CLASS ID LBRACE decls RBRACE SEMI
+            ;
+ 
+decls ::= decls decl
+        | /* epsilon */
+        ;
+ 
+decl ::= type ID SEMI
+        |type ID LPAREN formals RPAREN LBRACE statements RBRACE
+        |ID LPAREN formals RPAREN LBRACE statements RBRACE
+        ;
+       
+formals ::= formals formal
+          |/* epsilon */
+          ;
+ 
+formal ::= type ID;
+ 
+statements ::= statements statement
+             |; /* epsilon */
+ 
+statement ::= expr SEMI
+            | type ID SEMI
+            | assignment SEMI
+            | WHILE LPAREN expr RPAREN LBRACE statements RBRACE
+            | WHILE LPAREN expr RPAREN statement
+            | IF LPAREN expr RPAREN statement ELSE statement
+            | IF LPAREN expr RPAREN LBRACE statements RBRACE statements
+            | FOR LPAREN assignment SEMI expr SEMI assignment RPAREN statement
+            | FOR LPAREN assignment SEMI expr SEMI assignment RPAREN LBRACE statements RBRACE
+            | FOR LPAREN SEMI SEMI RPAREN statement
+            | FOR LPAREN SEMI SEMI RPAREN LBRACE statements RBRACE
+            | RETURN expr SEMI
+            | RETURN SEMI
+            ;
+ 
+assignment ::= lvalue ASSIGN expr
+             | lvalue PLUS PLUS
+             | lvalue MINUS MINUS
+             ;
+ 
+ 
+expr ::= expr op expr
+       | uop expr
+       | NUMBER
+       | lvalue
+       | NEW ID LPAREN actuals RPAREN
+       | NEW type LBRACKET expr DOTDOT expr RBRACKET
+       ;
+ 
+op ::= AND
+     | OR
+     | EQL
+     | NEQ
+     | SMEQ
+     | GTEQ
+     | SMALLER
+     | GREATER
+     | PLUS
+     | MINUS
+     | TIMES
+     | DIVIDE
+     | MOD
+     ;
+uop ::= NOT
+      | UMINUS
+      ;
+ 
+lvalue ::= ID LBRACKET actuals RBRACKET
+         | ID PBRACKET
+         | ID LPAREN expr RPAREN
+         | ID
+         | lvalue LBRACKET expr RBRACKET
+         | lvalue DOT ID LBRACKET actuals RBRACKET
+         | lvalue DOT ID PBRACKET
+         | SELF
+         ;
+ 
+actuals ::= expr
+          | expr COMMA actuals
+          ;
+ 
+ 
+ 
+type ::= TINT
+       | TBOOL
+       | TVOID
+       ;

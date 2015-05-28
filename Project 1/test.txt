@@ -1,0 +1,11 @@
+This432
+234
+212345cat ;
+"This is a string of literals"
+12.43e34
+12 + 3 = 4;
+(cat in the hat)
+this hsoul finish with a 
+12++
+*=
+.345e3
